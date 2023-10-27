@@ -117,8 +117,8 @@ extern int  yywrap();
 %type <boolExpr> BoolExpr
 %type <boolUnit> BoolUnit
 %type <comExpr> ComExpr
-
-%type <paramDecl> ParamDecl
+%type <assignStmt> AssignStmt
+%type <varDeclStmt> VarDeclStmt
 %type <varDecl> VarDecl
 %type <varDeclScalar> VarDeclScalar
 %type <varDeclArray> VarDeclArray
@@ -126,21 +126,18 @@ extern int  yywrap();
 %type <varDef> VarDef
 %type <varDefScalar> VarDefScalar
 %type <varDefArray> VarDefArray
-%type <varDeclStmt> VarDeclStmt
-
-%type <assignStmt> AssignStmt
+%type <structDef> StructDef
+%type <fnDeclStmt> FnDeclStmt
+%type <fnDecl> FnDecl
+%type <paramDecl> ParamDecl
+%type <fnDef> FnDef
+%type <codeBlockStmt> CodeBlockStmt
 %type <callStmt> CallStmt
 %type <ifStmt> IfStmt
 %type <whileStmt> WhileStmt
 %type <returnStmt> ReturnStmt
-%type <fnDecl> FnDecl
-%type <fnDeclStmt> FnDeclStmt
-%type <fnDef> FnDef
 %type <codeBlockStmt> CodeBlockStmt
 %type <codeBlockStmtList> CodeBlockStmtList
-%type <structDef> StructDef
-
-
 %type <programElement> ProgramElement
 %type <programElementList> ProgramElementList
 %type <program> Program
@@ -374,6 +371,180 @@ AssignStmt: LeftVal ASSIGN RightVal SEMICOLON
 ;
 
 
+VarDeclStmt: LET VarDecl SEMICOLON
+{
+  $$ = A_VarDeclStmt($1, $2);
+}
+| LET VarDef SEMICOLON
+{
+  $$ = A_VarDefStmt($1, $2);
+}
+;
+
+VarDecl: VarDeclScalar
+{
+  $$=A_VarDecl_Scalar($1->pos, $1);
+}
+| VarDeclArray
+{
+  $$=A_VarDecl_Array($1->pos, $1);
+}
+;
+
+VarDeclScalar:TokenId COLON Type
+{
+  $$=A_VarDeclScalar($1->pos, $1->id, $3);
+}
+;
+
+VarDeclArray:TokenId LSQR TokenNum RSQR COLON Type
+{
+  $$=A_VarDeclArray($1->pos, $1->id, $3->num, $6);
+}
+;
+
+VarDef : VarDefScalar
+{
+  $$=A_VarDef_Scalar($1->pos, $1);
+}
+| VarDefArray
+{
+  $$=A_VarDef_Array($1->pos, $1);
+}
+;
+
+VarDefScalar:TokenId COLON Type ASSIGN RightVal
+{
+  $$=A_VarDefScalar($1->pos, $1->id, $3 ,$5);
+}
+;
+
+VarDefArray: TokenId LSQR TokenNum RSQR COLON Type ASSIGN LBRA RightValList RBRA
+{
+  $$=A_VarDefArray($1->pos,$1->id,$3->num, $6, $9);
+
+}
+;
+
+VarDeclList: VarDecl VarDeclList
+{
+  $$ = A_VarDeclList($1, $2);
+}
+|
+{
+  $$ = NULL;
+}
+;
+
+StructDef: STRUCT TokenId LBRA VarDeclList RBRA {
+  $$=A_StructDef($1, $2->id, $4);
+}
+;
+
+FnDeclStmt:FnDecl SEMICOLON
+{
+  $$=A_FnDeclStmt($1->pos,$1);
+}
+;
+
+FnDecl: FN TokenId LPAR ParamDecl RPAR RIGHTARR Type
+{
+  $$=A_FnDecl($1,$2->id, $4, $7);
+}
+
+ParamDecl: VarDeclList
+{
+  $$=A_ParamDecl($1);
+}
+;
+
+FnDef: FnDecl LBRA CodeBlockStmtList RBRA
+{
+  $$ = A_FnDef($1->pos, $1, $3);
+}
+;
+
+ReturnStmt: RET RightVal SEMICOLON
+{
+  $$=A_ReturnStmt($1, $2);
+}
+;
+
+CallStmt: FnCall SEMICOLON
+{
+  $$=A_CallStmt($1->pos, $1);
+}
+;
+
+IfStmt: IF LPAR BoolExpr RPAR LBRA CodeBlockStmtList RBRA
+{
+  $$=A_IfStmt($1, $3, $6, NULL);
+}
+| IF LPAR BoolExpr RPAR LBRA CodeBlockStmtList RBRA ELSE LBRA CodeBlockStmtList RBRA
+{
+  $$=A_IfStmt($1, $3, $6, $10);
+}
+;
+
+WhileStmt: WHILE LPAR BoolExpr RPAR LBRA CodeBlockStmtList RBRA
+{
+  $$=A_WhileStmt($1, $3, $6);
+}
+;
+
+ReturnStmt: RET RightVal SEMICOLON
+{
+  $$=A_ReturnStmt($1, $2);
+}
+;
+
+CodeBlockStmtList: CodeBlockStmt CodeBlockStmtList
+{
+  $$ = A_CodeBlockStmtList($1, $2);
+}
+|
+{
+  $$ = NULL;
+}
+;
+
+CodeBlockStmt: VarDeclStmt
+{
+  $$ = A_BlockVarDeclStmt($1->pos, $1);
+}
+| AssignStmt
+{
+  $$ = A_BlockAssignStmt($1->pos, $1);
+}
+| CallStmt
+{
+  $$ = A_BlockCallStmt($1->pos, $1);
+}
+| IfStmt
+{
+  $$ = A_BlockIfStmt($1->pos, $1);
+}
+| WhileStmt
+{
+  $$ = A_BlockWhileStmt($1->pos, $1);
+}
+| ReturnStmt
+{
+  $$ = A_BlockReturnStmt($1->pos, $1);
+}
+| CONTINUE SEMICOLON
+{
+  $$ = A_BlockContinueStmt($1);
+}
+| BREAK SEMICOLON
+{
+  $$ = A_BlockBreakStmt($1);
+}
+| SEMICOLON
+{
+  $$ = A_BlockNullStmt($1);
+}
+;
 Program: ProgramElementList
 {
   root = A_Program($1);

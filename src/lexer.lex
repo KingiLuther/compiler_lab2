@@ -47,6 +47,10 @@ extern int line, col;
 [ \t\n]+        { /* Skip whitespace and newlines */ }
 .               { /* Handle unrecognized characters */ }
 
+"//" { BEGIN COMMENT_INLINE;}
+"/*" { BEGIN COMMENT_MULTILINE;}
+<COMMENT_MULTILINE>"*/" { BEGIN INITIAL;}
+
 %%
 
 int main(int argc, char* argv[]) {
