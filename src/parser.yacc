@@ -7,7 +7,7 @@ extern A_program root;
 
 extern int yylex(void);
 extern "C"{
-extern void yyerror(char *s); 
+extern void yyerror(char *s);
 extern int  yywrap();
 }
 
@@ -15,6 +15,10 @@ extern int  yywrap();
 
 // TODO:
 // your parser
+%left '+' '-'
+%left '*' '/'
+%left UMINUS
+
 
 %union {
   A_pos pos;
@@ -49,8 +53,70 @@ extern int  yywrap();
 
 %%                   /* beginning of rules section */
 
-Program: ProgramElementList 
-{  
+Program: ProgramElementList
+{
+  root = A_Program($1);
+  $$ = A_Program($1);
+}
+;
+
+ProgramElementList: ProgramElement ProgramElementList
+{
+  $$ = A_ProgramElementList($1, $2);
+}
+|
+{
+  $$ = NULL;
+}
+;
+
+ProgramElement: VarDeclStmt
+{
+  $$ = A_ProgramVarDeclStmt($1->pos, $1);
+}
+| StructDef
+{
+  $$ = A_ProgramStructDef($1->pos, $1);
+}
+| FnDeclStmt
+{
+  $$ = A_ProgramFnDeclStmt($1->pos, $1);
+}
+| FnDef
+{
+  $$ = A_ProgramFnDef($1->pos, $1);
+}
+| SEMICOLON
+{
+  $$ = A_ProgramNullStmt($1->pos);
+}
+;
+
+ArithExpr: ArithExpr ADD ArithExpr
+{
+  $$ = A_ArithBiOp_Expr($1->pos, A_add, $1, $3);
+}
+| ArithExpr SUB ArithExpr
+{
+  $$ = A_ArithBiOp_Expr($1->pos, A_sub, $1, $3);
+}
+| ArithExpr MUL ArithExpr
+{
+  $$ = A_ArithBiOp_Expr($1->pos, A_mul, $1, $3);
+}
+| ArithExpr DIV ArithExpr
+{
+  $$ = A_ArithBiOp_Expr($1->pos, A_div, $1, $3);
+}
+| ExprUnit
+{
+  $$ = A_ExprUnit($1->pos, $1);
+}
+;
+
+
+Program: ProgramElementList
+{
   root = A_Program($1);
   $$ = A_Program($1);
 }
@@ -123,5 +189,3 @@ int yywrap()
   return(1);
 }
 }
-
-

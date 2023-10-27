@@ -11,7 +11,7 @@ program := (varDeclStmt | structDef | fnDeclStmt | fnDef | comment | < ; >)*
 Each identifier begins with an alphabat and contains only alphabats and digits, e.g., alice, a0.
 
 ```
-id := [a-zA-Z][a-zA-Z0-9]*   
+id := [a-zA-Z][a-zA-Z0-9]*
 ```
 
 TeaPL allows integers, e.g., 123
@@ -45,7 +45,7 @@ comOp := < > > | < < > | < >= > | < <= > | < == > | < != >
 We restrict neither the left value nor right value can be assignments.
 
 ```
-assignStmt := leftVal < = > rightVal < ; >  
+assignStmt := leftVal < = > rightVal < ; >
 leftVal := id | id < [ > id | num < ] > | id < . > id
 rightVal := arithExpr | boolExpr
 ```
@@ -75,7 +75,7 @@ let d[10]:int = {0}; // declear a variable of integer array and initialize it wi
 
 The grammar is defined as follows.
  ```
-varDeclStmt := < let > (varDecl | varDef) < ; >   
+varDeclStmt := < let > (varDecl | varDef) < ; >
 varDecl := id < : > type |  id < [ > num < ] >< : > type | id |  id < [ > num < ] >
 varDef :=  id < : > type < = > rightVal | id < = > rightVal  //primitive type
          | id < [ > num < ] >< : > type < = > < { > rightVal (< , > rightVal)* | ϵ < } > | id < [ > num < ] > < = > < { > rightVal (< , > rightVal)* | ϵ < } > //array
@@ -86,11 +86,11 @@ structType := id
 
 ### Define A New Structure
 
-Developers can define new customized types with the preserved keyword struct, e.g., 
+Developers can define new customized types with the preserved keyword struct, e.g.,
 ```
-struct MyStruct { 
-    node:int, 
-    len:int  
+struct MyStruct {
+    node:int,
+    len:int
 }
 ```
 
@@ -120,13 +120,13 @@ We can also define a function while declaring it.
 ```
 fn foo(a:int, b:int)->int {
     return a + b;
-} 
+}
 ```
 
 The grammar is specified as follows.
 ```
-fnDef := fnDecl codeBlock  
-codeBlock :=  < { > (varDeclStmt | assignStmt | callStmt | ifStmt | whileStmt | returnStmt | continueStmt | breakStmt | < ; > )* < } > 
+fnDef := fnDecl codeBlock
+codeBlock :=  < { > (varDeclStmt | assignStmt | callStmt | ifStmt | whileStmt | returnStmt | continueStmt | breakStmt | < ; > )* < } >
 returnStmt ：= < ret > rightVal < ; >
 continueStmt := < continue > < ; >
 breakStmt := < break > < ; >
@@ -180,7 +180,7 @@ Definition:
 whileStmt := < while > < ( > boolExpr < ) > codeBlock
 ```
 
-### Code Comments 
+### Code Comments
 
 Similar to most programming languages, TeaPL allows line comments with "//" and scope comments with "/* ... */".
 ```
@@ -188,12 +188,12 @@ int a = 0; // this is a line comment.
 
 /*
     Feature: this is a scope comment
-*/  
+*/
 fn foo(){
     ...
 }
 ```
 
 ```
-comment :=  < // > _* | < /* > _* < */ >  
+comment :=  < // > _* | < /* > _* < */ >
 ```
