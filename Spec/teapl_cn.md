@@ -2,6 +2,7 @@
 
 每个程序由变量声明、函数声明、函数定义和注释组成。
 
+/////
 ```
 program := (varDeclStmt | structDef | fnDeclStmt | fnDef | comment | < ; >)*
 ```
