@@ -57,7 +57,7 @@ void check_Prog(std::ostream* out, aA_program p)
             check_StructDef(out, ele->u.structDef);
         }
     }
-    
+
     for (auto ele : p->programElements){
         if(ele->kind == A_programFnDeclStmtKind){
             check_FnDeclStmt(out, ele->u.fnDeclStmt);
@@ -83,23 +83,23 @@ void check_Prog(std::ostream* out, aA_program p)
 
 void check_VarDecl(std::ostream* out, aA_varDeclStmt vd)
 {
-    // variable declaration statement 
+    // variable declaration statement
     if (!vd)
         return;
     string name;
     if (vd->kind == A_varDeclStmtType::A_varDeclKind){
-        // if declaration only 
+        // if declaration only
         // Example:
         //   let a:int;
         //   let a[5]:int;
-        
+
         /* write your code here*/
     }
     else if (vd->kind == A_varDeclStmtType::A_varDefKind){
-        // if both declaration and initialization 
+        // if both declaration and initialization
         // Example:
         //   let a:int = 5;
-        
+
         /* write your code here */
     }
     return;
@@ -151,9 +151,9 @@ void check_FnDecl(std::ostream* out, aA_fnDecl fd)
                     if(get_varDecl_id(fd->paramDecl->varDecls[i]).compare(get_varDecl_id(fd->paramDecl->varDecls[j])) == 0)
                         error_print(out, fd->pos, "The function parameter list should not duplicate!");
                 }
-            }    
+            }
         }
-        
+
     }
     return;
 }
@@ -203,7 +203,6 @@ void check_FnDef(std::ostream* out, aA_fnDef fd)
 
     // erase local vars defined in this function
     funcparam_token2Type.clear();
-    return;
     return;
 }
 
@@ -275,8 +274,8 @@ void check_ArrayExpr(std::ostream* out, aA_arrayExpr ae){
 
 aA_type check_MemberExpr(std::ostream* out, aA_memberExpr me){
     // check if the member exists and return the tyep of the member
-    // you may need to check if the type of this expression matches with its 
-    // leftvalue or rightvalue, so return its aA_type would be a good way. Feel 
+    // you may need to check if the type of this expression matches with its
+    // leftvalue or rightvalue, so return its aA_type would be a good way. Feel
     // free to change the design pattern if you need.
     if(!me)
         return nullptr;
@@ -350,8 +349,8 @@ void check_BoolUnit(std::ostream* out, aA_boolUnit bu){
 
 aA_type check_ExprUnit(std::ostream* out, aA_exprUnit eu){
     // validate the expression unit and return the aA_type of it
-    // you may need to check if the type of this expression matches with its 
-    // leftvalue or rightvalue, so return its aA_type would be a good way. 
+    // you may need to check if the type of this expression matches with its
+    // leftvalue or rightvalue, so return its aA_type would be a good way.
     // Feel free to change the design pattern if you need.
     if(!eu)
         return nullptr;
@@ -426,4 +425,3 @@ void check_ReturnStmt(std::ostream* out, aA_returnStmt rs){
         return;
     return;
 }
-
