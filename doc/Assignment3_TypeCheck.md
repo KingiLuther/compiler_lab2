@@ -30,30 +30,30 @@ make
 
 本次实验的 `PrintTeaplaAst.cpp` 进行了更新，在你 `make` 之后，会在 `test/` 目录下同时打印出树结构的代码 AST，如
 ```
-A_program 
-	|--A_programElement 
-		|--A_fnDef 
+A_program
+	|--A_programElement
+		|--A_fnDef
 			|--A_fnDecl fn foo1(
-				|--A_paramDecl 
-					|--A_varDecl 
+				|--A_paramDecl
+					|--A_varDecl
 						|--A_varDeclScalar a:
-						|--A_type int, 
-					|--A_varDecl 
+						|--A_type int,
+					|--A_varDecl
 						|--A_varDeclScalar b:
 						|--A_type int)->
 			|--A_type int{
 
-			|--A_codeBlockStmt 
-				|--A_returnStmt ret 
-				|--A_rightVal 
-					|--A_arithExpr 
-						|--A_exprUnit 
+			|--A_codeBlockStmt
+				|--A_returnStmt ret
+				|--A_rightVal
+					|--A_arithExpr
+						|--A_exprUnit
 							|--A_fnCall foo2(
-							|--A_rightVal 
-								|--A_arithExpr 
-									|--A_exprUnit b, 
-							|--A_rightVal 
-								|--A_arithExpr 
+							|--A_rightVal
+								|--A_arithExpr
+									|--A_exprUnit b,
+							|--A_rightVal
+								|--A_arithExpr
 									|--A_exprUnit a);
 ```
 可以使用这个输出来帮助你更直观地了解你拿到的 root 里是怎样的数据结构，提高你编码和debug的效率。
@@ -63,7 +63,7 @@ A_program
 ### 类型检查规则
 以下是本次实验的测试用例遵循的类型检查规则。
 
-- 不需要支持变量声明时的类型推断。
+#### 1. 不需要支持变量声明时的类型推断。
 ```
 let a = 5;
 ```
@@ -80,7 +80,7 @@ let a:int = 5;
 ```
 在 testcases 中，变量在声明的同时一定指出了其类型。
 
-- 函数声明和全局变量声明不关注位置。即，下述代码应当通过类型检查：
+#### 2. 函数声明和全局变量声明不关注位置。即，下述代码应当通过类型检查：
 
 ```
 fn foo1(a:int, b:int)->int{
@@ -102,7 +102,7 @@ let a:int = 5;
 
 全局变量的声明不会依赖函数。
 
-- 局部变量不能与任何位置的全局变量重名；函数参数在函数作用域内优先于全局变量：
+#### 3. 局部变量不能与任何位置的全局变量重名；函数参数在函数作用域内优先于全局变量：
 ```
 let a:int = 5;
 let b:int = 10;
@@ -123,7 +123,7 @@ fn foo(a:int)->int{
 ```
 应当报告重复定义变量的问题。
 
-- 函数可以先声明后定义，也可以直接定义，但只能【声明+定义】或【定义】一次。不需要支持函数的重载。
+#### 4. 函数可以先声明后定义，也可以直接定义，但只能【声明+定义】或【定义】一次。不需要支持函数的重载。
 ```
 fn foo(a:int, b:int)->int{
 	ret b - a;
@@ -145,7 +145,7 @@ fn foo(a:int, b:int)->int{
 ```
 上面这种重载代码不会在 testcase 里出现，所以你可以自己决定是否支持。
 
-- 注意作用域的嵌套和并列。如
+#### 5. 注意作用域的嵌套和并列。如
 ```
 fn foo(a:int, b:int)->int{
     if((a < b)){

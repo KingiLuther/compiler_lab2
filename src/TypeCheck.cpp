@@ -3,11 +3,16 @@
 // maps to store the type information. Feel free to design new data structures if you need.
 typeMap g_token2Type; // global token ids to type
 typeMap funcparam_token2Type; // func params token ids to type
-typeMap funcparam_token2Type; // func params token ids to type
 vector<typeMap*> local_token2Type; // local ids to type, works as a stack
 
-paramMemberMap func2Param;
-paramMemberMap struct2Members;
+paramMemberMap func2Param; // func2Params: func name -> func param declarations, global storage
+paramMemberMap struct2Members; // struct name -> sturct param declarations
+
+// 用于记录当前的作用域
+int cur = 1;
+
+// 用于记录当前的函数名
+std::string cur_func_name = "";
 
 
 // private util functions. You can use these functions to help you debug.
@@ -46,10 +51,11 @@ void print_token_map(typeMap* map){
 
 // public functions
 // This is the entrace of this file.
-void check_Prog(std::ostream* out, aA_program p)
-{
+// 遍历抽象语法树（AST）的每个元素，并对每个元素进行类型检查。
+void check_Prog(std::ostream* out, aA_program p) {
     // p is the root of AST tree.
-    for (auto ele : p->programElements) {
+    // 指向AST的根节点
+
     /*
         Write your code here.
 
@@ -58,6 +64,10 @@ void check_Prog(std::ostream* out, aA_program p)
 
         2. Many types of statements indeed collapse to some same units, so a good abstract design will help you reduce the amount of your code.
     */
+
+    // Check Var & Struct definition
+    // Var & Struct should be defined before used
+    for (auto ele : p->programElements) {
         if(ele->kind == A_programVarDeclStmtKind) {
             check_VarDecl(out, ele->u.varDeclStmt);
         }else if (ele->kind == A_programStructDefKind){
@@ -65,6 +75,7 @@ void check_Prog(std::ostream* out, aA_program p)
         }
     }
 
+    // Check Function defclaration & definition
     for (auto ele : p->programElements) {
         if(ele->kind == A_programFnDeclStmtKind){
             check_FnDeclStmt(out, ele->u.fnDeclStmt);
@@ -74,45 +85,49 @@ void check_Prog(std::ostream* out, aA_program p)
         }
     }
 
+    // Check Function definition
     for (auto ele : p->programElements){
         if(ele->kind == A_programFnDefKind){
             check_FnDef(out, ele->u.fnDef);
         }
         else if (ele->kind == A_programNullStmtKind){
             // do nothing
+
         }
     }
 
     (*out) << "Typecheck passed!" << std::endl;
+
     return;
 }
 
-
+// Check Var Declaration
 void check_VarDecl(std::ostream* out, aA_varDeclStmt vd)
 {
     // variable declaration statement
     if (!vd)
         return;
     string name;
+    // [1] if declaration only
+    // Example:
+    //   let a:int;
+    //   let a[5]:int;
     if (vd->kind == A_varDeclStmtType::A_varDeclKind){
-        // if declaration only
-        // Example:
-        //   let a:int;
-        //   let a[5]:int;
-
         /* write your code here*/
+        check_VarDeclScalar(out, varDecl->u.declScalar);
     }
+    // [2] if both declaration and initialization
+    // Example:
+    //   let a:int = 5;
     else if (vd->kind == A_varDeclStmtType::A_varDefKind){
-        // if both declaration and initialization
-        // Example:
-        //   let a:int = 5;
-
         /* write your code here */
+        check_VarDeclArray(out, varDecl->u.declArray);
     }
     return;
 }
 
 
+// 检查结构体定义
 void check_StructDef(std::ostream* out, aA_structDef sd)
 {
     if (!sd)
@@ -428,7 +443,7 @@ void check_FuncCall(std::ostream* out, aA_fnCall fc){
     return ;
 }
 
-
+// 检查while循环语句
 void check_WhileStmt(std::ostream* out, aA_whileStmt ws){
     if(!ws)
         return;
@@ -439,7 +454,7 @@ void check_WhileStmt(std::ostream* out, aA_whileStmt ws){
     return;
 }
 
-
+// 检查函数调用，包括函数声明和函数定义
 void check_CallStmt(std::ostream* out, aA_callStmt cs){
     if(!cs)
         return;
@@ -447,9 +462,10 @@ void check_CallStmt(std::ostream* out, aA_callStmt cs){
     return;
 }
 
-
+// 检查返回语句
 void check_ReturnStmt(std::ostream* out, aA_returnStmt rs){
     if(!rs)
         return;
+
     return;
 }
