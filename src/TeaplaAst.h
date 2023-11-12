@@ -50,6 +50,10 @@ typedef struct aA_program_* aA_program;
 struct aA_type_ {
     A_pos pos;
     A_dataType type;
+    bool is_array;
+    int len;
+    int cur;
+    bool is_bool;
     union {
         A_nativeType nativeType;
         string* structType;
