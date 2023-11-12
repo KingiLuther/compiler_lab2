@@ -41,7 +41,7 @@ void print_token_map(typeMap* map){
     }
 }
 
-
+// 1
 // public functions
 // This is the entrace of this file.
 void check_Prog(std::ostream* out, aA_program p)
@@ -73,7 +73,7 @@ void check_Prog(std::ostream* out, aA_program p)
     return;
 }
 
-
+// 2
 void check_VarDecl(std::ostream* out, aA_varDeclStmt vd)
 {
     // variable declaration statement 
@@ -99,6 +99,7 @@ void check_VarDecl(std::ostream* out, aA_varDeclStmt vd)
 }
 
 
+// 3
 void check_StructDef(std::ostream* out, aA_structDef sd)
 {
     if (!sd)
@@ -115,6 +116,7 @@ void check_StructDef(std::ostream* out, aA_structDef sd)
 }
 
 
+// 4
 void check_FnDecl(std::ostream* out, aA_fnDecl fd)
 {
     // Example:
@@ -130,6 +132,7 @@ void check_FnDecl(std::ostream* out, aA_fnDecl fd)
 }
 
 
+// 5
 void check_FnDeclStmt(std::ostream* out, aA_fnDeclStmt fd)
 {
     // Example:
@@ -141,6 +144,7 @@ void check_FnDeclStmt(std::ostream* out, aA_fnDeclStmt fd)
 }
 
 
+// 6
 void check_FnDef(std::ostream* out, aA_fnDef fd)
 {
     // Example:
@@ -160,6 +164,7 @@ void check_FnDef(std::ostream* out, aA_fnDef fd)
 }
 
 
+// 7
 void check_CodeblockStmt(std::ostream* out, aA_codeBlockStmt cs){
     if(!cs)
         return;
@@ -190,6 +195,7 @@ void check_CodeblockStmt(std::ostream* out, aA_codeBlockStmt cs){
 }
 
 
+// 8
 void check_AssignStmt(std::ostream* out, aA_assignStmt as){
     if(!as)
         return;
@@ -213,6 +219,7 @@ void check_AssignStmt(std::ostream* out, aA_assignStmt as){
 }
 
 
+// 9
 void check_ArrayExpr(std::ostream* out, aA_arrayExpr ae){
     if(!ae)
         return;
@@ -240,6 +247,7 @@ aA_type check_MemberExpr(std::ostream* out, aA_memberExpr me){
 }
 
 
+// 10
 void check_IfStmt(std::ostream* out, aA_ifStmt is){
     if(!is)
         return;
@@ -254,6 +262,7 @@ void check_IfStmt(std::ostream* out, aA_ifStmt is){
 }
 
 
+// 11
 void check_BoolExpr(std::ostream* out, aA_boolExpr be){
     if(!be)
         return;
@@ -272,6 +281,7 @@ void check_BoolExpr(std::ostream* out, aA_boolExpr be){
 }
 
 
+// 12
 void check_BoolUnit(std::ostream* out, aA_boolUnit bu){
     if(!bu)
         return;
@@ -294,6 +304,7 @@ void check_BoolUnit(std::ostream* out, aA_boolUnit bu){
 }
 
 
+// 13
 aA_type check_ExprUnit(std::ostream* out, aA_exprUnit eu){
     // validate the expression unit and return the aA_type of it
     // you may need to check if the type of this expression matches with its 
@@ -337,6 +348,7 @@ aA_type check_ExprUnit(std::ostream* out, aA_exprUnit eu){
 }
 
 
+// 14
 void check_FuncCall(std::ostream* out, aA_fnCall fc){
     if(!fc)
         return;
@@ -348,6 +360,7 @@ void check_FuncCall(std::ostream* out, aA_fnCall fc){
 }
 
 
+// 15
 void check_WhileStmt(std::ostream* out, aA_whileStmt ws){
     if(!ws)
         return;
@@ -359,6 +372,7 @@ void check_WhileStmt(std::ostream* out, aA_whileStmt ws){
 }
 
 
+// 16
 void check_CallStmt(std::ostream* out, aA_callStmt cs){
     if(!cs)
         return;
@@ -367,6 +381,7 @@ void check_CallStmt(std::ostream* out, aA_callStmt cs){
 }
 
 
+// 17
 void check_ReturnStmt(std::ostream* out, aA_returnStmt rs){
     if(!rs)
         return;
