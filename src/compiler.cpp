@@ -23,30 +23,31 @@ int line, col;
 A_program root;
 aA_program aroot;
 
-int main(int argc, char * argv[]) {
+int main(int argc, char *argv[])
+{
 
-    #if YACCDEBUG
-        yydebug = 1;
-    #endif
+#if YACCDEBUG
+    yydebug = 1;
+#endif
 
     line = 1;
     col = 1;
 
     string input_name = argv[1];
     auto dot_pos = input_name.find('.');
-    if(dot_pos == input_name.npos)
+    if (dot_pos == input_name.npos)
     {
         cout << "input error";
         return -1;
     }
-    string file_name(input_name.substr(0,dot_pos));
-    
-    freopen(argv[1], "r", stdin);  
+    string file_name(input_name.substr(0, dot_pos));
+
+    freopen(argv[1], "r", stdin);
     ofstream ASTStream;
     // ASTStream.open(file_name+".ast");
 
     yyparse();
-    
+
     aroot = aA_Program(root);
     // print_aA_Program(aroot, ASTStream);
     // ASTStream.close();
@@ -56,9 +57,8 @@ int main(int argc, char * argv[]) {
     ofstream LLVMStream;
     LLVMStream.open(file_name + ".ll");
     auto prog = ast2llvm(aroot);
-    printL_prog(LLVMStream,prog);
+    printL_prog(LLVMStream, prog);
     LLVMStream.close();
 
     return 0;
 }
-

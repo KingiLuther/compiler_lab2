@@ -2,9 +2,9 @@
 func_testcase_dir=$(realpath $(dirname "$0")/./tests)
 
 test_single() {
-	test_file=`realpath --relative-base=$func_testcase_dir $func_testcase_dir/$1.tea`	
+	test_file=`realpath --relative-base=$func_testcase_dir $func_testcase_dir/$1.tea`
 	test_name=${test_file%.tea}
-	
+
 	echo -n $test_name
 	echo ": "
 
@@ -24,7 +24,7 @@ test_single() {
 	echo -e $? >> ./output/$test_name.out
 	diff -Bb ./output/$test_name.out $func_testcase_dir/$test_name.out > /dev/null 2>/dev/null
 	if [ $? == 0 ]; then
-        echo pass; 
+        echo pass;
 	else
 		echo fail;\
 		echo "Expect:";\
