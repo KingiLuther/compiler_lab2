@@ -21,7 +21,6 @@ struct StructInfo
 {
     std::unordered_map<std::string, MemberInfo> memberinfos;
 };
-
 struct Func_local
 {
     std::string name;
