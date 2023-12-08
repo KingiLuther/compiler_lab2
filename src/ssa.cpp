@@ -100,8 +100,8 @@ void combine_addr(LLVMIR::L_func* fun) {
 
 // 将内存中的标量放入寄存器
 void mem2reg(LLVMIR::L_func* fun) {
-   //   Todo
-   L_block* first_block = fun->blocks.front();
+    //   Todo
+    L_block* first_block = fun->blocks.front();
     unordered_map<Temp_temp*, AS_operand*> alloca_temp2ASoper;
     for (auto iter = first_block->instrs.begin(); iter != first_block->instrs.end();) {
         if (is_mem_variable(*iter)) {
@@ -125,7 +125,6 @@ void mem2reg(LLVMIR::L_func* fun) {
             } else iter++;
         }
     }
-    combine_addr(fun);
 }
 
 // 计算支配节点
@@ -223,7 +222,6 @@ void printf_DF() {
 
 // 计算支配树
 void tree_Dominators(GRAPH::Graph<LLVMIR::L_block*>& bg) {
-    //
         for (auto node:bg.mynodes){
         unordered_set<L_block*> candidate=dominators[node.second->info];
         candidate.erase(node.second->info);
