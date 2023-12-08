@@ -36,20 +36,20 @@ int main(int argc, char * argv[]) {
     col = 1;
 
     string input_name = argv[1];
-    auto dot_pos = input_name.find('.');
+    auto dot_pos = input_name.rfind('.');
     if(dot_pos == input_name.npos)
     {
         cout << "input error";
         return -1;
     }
     string file_name(input_name.substr(0,dot_pos));
-    
-    freopen(argv[1], "r", stdin);  
+
+    freopen(argv[1], "r", stdin);
     ofstream ASTStream;
     // ASTStream.open(file_name+".ast");
 
     yyparse();
-    
+
     aroot = aA_Program(root);
     // print_aA_Program(aroot, ASTStream);
     // ASTStream.close();
@@ -61,9 +61,8 @@ int main(int argc, char * argv[]) {
     auto prog = ast2llvm(aroot);
     prog=SSA(prog);
     printL_prog(LLVMStream,prog);
-    
+
     LLVMStream.close();
     printf("exit\n");
     return 0;
 }
-
