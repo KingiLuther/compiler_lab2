@@ -13,16 +13,19 @@ using namespace std;
 using namespace LLVMIR;
 using namespace GRAPH;
 
-static Graph<L_block*> RA_bg;
-static unordered_map<Temp_label*, L_block*> block_env;
+static Graph<L_block*> RA_bg;   //表示基本块之间关系的图
+static unordered_map<Temp_label*, L_block*> block_env;  // 用于映射Temp_label*到相应基本块L_block*的无序映射
 
+//  提供对全局图的访问函数
 Graph<L_block*>& Bg_graph() {
     return RA_bg;
 }
+//  提供对块环境映射的访问函数
 unordered_map<Temp_label*, L_block*>& Bg_block_env() {
     return block_env;
 }
 
+// 在图中查找给定基本块的节点，如果找不到则创建新节点
 Node<L_block*>* Look_bg(L_block* b) {
     Node<L_block*>* n1 = nullptr;
     for (auto n : *RA_bg.nodes()) {
@@ -37,6 +40,7 @@ Node<L_block*>* Look_bg(L_block* b) {
         return n1;
 }
 
+//  在图中添加由两个基本块表示的边
 static void Enter_bg(L_block* b1, L_block* b2) {
     Node<L_block*>* n1 = Look_bg(b1);
     Node<L_block*>* n2 = Look_bg(b2);
@@ -46,7 +50,7 @@ static void Enter_bg(L_block* b1, L_block* b2) {
 
 /* input LLVMIR::L_block* *List after instruction selection for each block,
     generate a graph on the basic blocks */
-
+// 接受LLVM基本块的列表，构建了一个基本块图
 Graph<L_block*>& Create_bg(list<L_block*>& bl) {
     RA_bg = Graph<L_block*>();
     block_env = unordered_map<Temp_label*, L_block*>();
@@ -75,6 +79,8 @@ static void DFS(Node<L_block*>* r, Graph<L_block*>& bg) {
     }
 }
 
+// 图的修剪
+// 从给定的起始节点执行DFS，标记可达的基本块，并删除不可达的基本块
 void SingleSourceGraph(Node<L_block*>* r, Graph<L_block*>& bg,L_func*fun) {
     unordered_map<L_block*,std::list<L_block*>::iterator>iter_map;
     for(auto block=fun->blocks.begin();block!=fun->blocks.end();++block){
@@ -102,6 +108,7 @@ void SingleSourceGraph(Node<L_block*>* r, Graph<L_block*>& bg,L_func*fun) {
     return;
 }
 
+// 打印图的信息，包括每个基本块的前驱和后继基本块
 void Show_graph(FILE* out,GRAPH::Graph<LLVMIR::L_block*>&bg){
     for(auto block_node:bg.mynodes){
         auto block=block_node.second->info;
