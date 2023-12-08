@@ -97,6 +97,59 @@ void mem2reg(LLVMIR::L_func* fun) {
 
 void Dominators(GRAPH::Graph<LLVMIR::L_block*>& bg) {
     //   Todo
+       dominators.clear();
+    for (auto block : bg.mynodes) {
+        revers_graph[block.second->info] = block.second;
+    }
+    for (auto block_i : bg.mynodes) {
+        if (block_i.second->inDegree()) {
+            for (auto block_j : bg.mynodes) {
+                dominators[block_i.second->info].insert(block_j.second->info);
+            }
+        } else {
+            dominators[block_i.second->info].insert(block_i.second->info);
+        }
+    }
+    bool changed = true;
+    int i = 0;
+    while (changed) {
+        changed = false;
+        i++;
+        for (auto block : bg.mynodes) {
+            if (block.second->inDegree() == 0)
+                continue;
+            unordered_set<LLVMIR::L_block*> next_dom;
+            //  intersection D[p]
+            auto preds = block.second->preds;
+            if (preds.size()) {
+                next_dom = dominators[bg.mynodes[*preds.begin()]->info];
+            }
+            for (auto pred : preds) {
+                if (pred == *preds.begin())
+                    continue;
+                for (auto t = next_dom.begin(); t != next_dom.end();) {
+                    if (dominators[bg.mynodes[pred]->info].find(*t) != dominators[bg.mynodes[pred]->info].end()) {
+                        ++t;
+                    } else {
+                        t = next_dom.erase(t);
+                    }
+                }
+            }
+            next_dom.insert(block.second->info);
+            if (!changed) {
+                for (auto x : dominators[block.second->info]) {
+                    if (next_dom.find(x) != next_dom.end()) {
+                        continue;
+                    } else {
+                        changed = true;
+                        break;
+                    }
+                }
+            }
+            dominators[block.second->info] = next_dom;
+        }
+    }
+    // cout<<i<<endl;
 }
 
 void printf_domi() {

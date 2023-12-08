@@ -65,13 +65,41 @@ Graph<L_block*>& Create_bg(list<L_block*>& bl) {
     return RA_bg;
 }
 
-// maybe useful
 static void DFS(Node<L_block*>* r, Graph<L_block*>& bg) {
-
+    if (r->color == 1)
+        return;
+    r->color = 1;
+    for (auto succ_id : r->succs) {
+        auto succ = bg.mynodes[succ_id];
+        DFS(succ, bg);
+    }
 }
 
 void SingleSourceGraph(Node<L_block*>* r, Graph<L_block*>& bg,L_func*fun) {
-    //   Todo
+    unordered_map<L_block*,std::list<L_block*>::iterator>iter_map;
+    for(auto block=fun->blocks.begin();block!=fun->blocks.end();++block){
+        iter_map.insert({*block,block});
+    }
+    DFS(r, bg);
+    for (auto x = bg.mynodes.begin(); x != bg.mynodes.end();) {
+        if (x->second->color == 0) {
+            for (auto pred : x->second->preds) {
+                bg.mynodes[pred]->succs.erase(x->second->mykey);
+            }
+            for (auto succ : x->second->succs) {
+                bg.mynodes[succ]->preds.erase(x->second->mykey);
+            }
+            // printL_block(cout,x->second->info);
+            fun->blocks.erase(iter_map[x->second->info]);
+            x = bg.mynodes.erase(x);
+        } else {
+            ++x;
+        }
+    }
+    for (auto& x : bg.mynodes) {
+        x.second->color = 0;
+    }
+    return;
 }
 
 void Show_graph(FILE* out,GRAPH::Graph<LLVMIR::L_block*>&bg){

@@ -93,7 +93,57 @@ list<AS_operand**> get_all_AS_operand(L_stm* stm) {
 }
 
 std::list<AS_operand**> get_def_operand(L_stm* stm) {
-    //   Todo
+    list<AS_operand**> AS_operand_list;
+    list<AS_operand**> ret_list;
+    switch (stm->type) {
+        case L_StmKind::T_BINOP: {
+            AS_operand_list.push_back(&(stm->u.BINOP->dst));
+        } break;
+        case L_StmKind::T_LOAD: {
+            AS_operand_list.push_back(&(stm->u.LOAD->dst));
+        } break;
+        case L_StmKind::T_STORE: {
+        } break;
+        case L_StmKind::T_LABEL: {
+        } break;
+        case L_StmKind::T_JUMP: {
+        } break;
+        case L_StmKind::T_CMP: {
+            //  i1的局部变量不进行pass
+            // AS_operand_list.push_back(&(stm->u.CMP->dst));
+        } break;
+        case L_StmKind::T_CJUMP: {
+        } break;
+        case L_StmKind::T_MOVE: {
+            AS_operand_list.push_back(&(stm->u.MOVE->dst));
+        } break;
+        case L_StmKind::T_CALL: {
+            AS_operand_list.push_back(&(stm->u.CALL->res));
+        } break;
+        case L_StmKind::T_VOID_CALL: {
+        } break;
+        case L_StmKind::T_RETURN: {
+        } break;
+        case L_StmKind::T_PHI: {
+            AS_operand_list.push_back(&(stm->u.PHI->dst));
+        } break;
+        case L_StmKind::T_ALLOCA: {
+            AS_operand_list.push_back(&(stm->u.ALLOCA->dst));
+        } break;
+        case L_StmKind::T_GEP: {
+            AS_operand_list.push_back(&(stm->u.GEP->new_ptr));
+        } break;
+        default: {
+            printf("%d\n", (int)stm->type);
+            assert(0);
+        }
+    }
+    for (auto AS_op : AS_operand_list) {
+        if ((*AS_op)->kind == OperandKind::TEMP) {
+            ret_list.push_back(AS_op);
+        }
+    }
+    return ret_list;
 }
 list<Temp_temp*> get_def(L_stm* stm) {
     auto AS_operand_list = get_def_operand(stm);
@@ -105,7 +155,70 @@ list<Temp_temp*> get_def(L_stm* stm) {
 }
 
 std::list<AS_operand**> get_use_operand(L_stm* stm) {
-    //   Todo
+    list<AS_operand**> AS_operand_list;
+    list<AS_operand**> ret_list;
+    switch (stm->type) {
+        case L_StmKind::T_BINOP: {
+            AS_operand_list.push_back(&(stm->u.BINOP->left));
+            AS_operand_list.push_back(&(stm->u.BINOP->right));
+        } break;
+        case L_StmKind::T_LOAD: {
+            AS_operand_list.push_back(&(stm->u.LOAD->ptr));
+        } break;
+        case L_StmKind::T_STORE: {
+            AS_operand_list.push_back(&(stm->u.STORE->src));
+            AS_operand_list.push_back(&(stm->u.STORE->ptr));
+        } break;
+        case L_StmKind::T_LABEL: {
+        } break;
+        case L_StmKind::T_JUMP: {
+        } break;
+        case L_StmKind::T_CMP: {
+            AS_operand_list.push_back(&(stm->u.CMP->left));
+            AS_operand_list.push_back(&(stm->u.CMP->right));
+        } break;
+        case L_StmKind::T_CJUMP: {
+            // AS_operand_list.push_back(&(stm->u.CJUMP->dst));
+        } break;
+        case L_StmKind::T_MOVE: {
+            AS_operand_list.push_back(&(stm->u.MOVE->src));
+        } break;
+        case L_StmKind::T_CALL: {
+            for (auto& arg : stm->u.CALL->args) {
+                AS_operand_list.push_back(&arg);
+            }
+        } break;
+        case L_StmKind::T_VOID_CALL: {
+            for (auto& arg : stm->u.VOID_CALL->args) {
+                AS_operand_list.push_back(&arg);
+            }
+        } break;
+        case L_StmKind::T_RETURN: {
+            if (stm->u.RET->ret != nullptr)
+                AS_operand_list.push_back(&(stm->u.RET->ret));
+        } break;
+        case L_StmKind::T_PHI: {
+            for (auto& phi : stm->u.PHI->phis) {
+                AS_operand_list.push_back(&(phi.first));
+            }
+        } break;
+        case L_StmKind::T_ALLOCA: {
+        } break;
+        case L_StmKind::T_GEP: {
+            AS_operand_list.push_back(&(stm->u.GEP->base_ptr));
+            AS_operand_list.push_back(&(stm->u.GEP->index));
+        } break;
+        default: {
+            printf("%d\n", (int)stm->type);
+            assert(0);
+        }
+    }
+    for (auto AS_op : AS_operand_list) {
+        if ((*AS_op)->kind == OperandKind::TEMP) {
+            ret_list.push_back(AS_op);
+        }
+    }
+    return ret_list;
 }
 
 list<Temp_temp*> get_use(L_stm* stm) {
@@ -136,11 +249,48 @@ TempSet_& FG_use(GRAPH::Node<LLVMIR::L_block*>* r) {
 }
 
 static void Use_def(GRAPH::Node<LLVMIR::L_block*>* r, GRAPH::Graph<LLVMIR::L_block*>& bg, std::vector<Temp_temp*>& args) {
-//    Todo
+    for (auto arg : args)
+        UseDefTable[r].def.insert(arg);
+    for (auto block_node : bg.mynodes) {
+        auto block = block_node.second->info;
+        for (auto stm : block->instrs) {
+            auto uses = get_use(stm);
+            auto defs = get_def(stm);
+             for (auto use : uses) {
+                if(UseDefTable[block_node.second].def.find(use)==UseDefTable[block_node.second].def.end())
+                    UseDefTable[block_node.second].use.insert(use);
+            }
+            for (auto def : defs) {
+                UseDefTable[block_node.second].def.insert(def);
+            }
+        }
+    }
 }
 static int gi=0;
 static bool LivenessIteration(GRAPH::Node<LLVMIR::L_block*>* r, GRAPH::Graph<LLVMIR::L_block*>& bg) {
-   //    Todo
+    bool changed = false;
+    gi++;
+    for (auto block_node : bg.mynodes) {
+        auto block = block_node.second;
+        // do in[n] = use[n] union (out[n] - def[n])
+        auto in = TempSet_union(&FG_use(block), TempSet_diff(&FG_Out(block), &(FG_def(block))));
+
+        // Now do out[n]=union_s in succ[n] (in[s])
+        auto succ = block->succs;
+        TempSet out = new TempSet_();  // out is an accumulator
+        for (auto s : succ) {
+            out = TempSet_union(out, &FG_In(bg.mynodes[s]));
+        }
+        // See if any in/out changed
+        if (!(!changed&&TempSet_eq(&FG_In(block), in) && TempSet_eq(&FG_Out(block), out)))
+            changed = true;
+        // enter the new info
+        InOutTable[block].in = *in;
+        InOutTable[block].out = *out;
+    }
+    
+    // Show_Liveness(stdout,bg);
+    return changed;
 }
 
 void PrintTemps(FILE *out, TempSet set) {
