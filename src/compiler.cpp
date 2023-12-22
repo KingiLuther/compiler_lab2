@@ -35,7 +35,7 @@ int main(int argc, char * argv[]) {
     col = 1;
 
     string input_name = argv[1];
-    auto dot_pos = input_name.find('.');
+    auto dot_pos = input_name.rfind('.');
     if(dot_pos == input_name.npos)
     {
         cout << "input error";
